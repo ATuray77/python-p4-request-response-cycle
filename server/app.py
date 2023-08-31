@@ -1,40 +1,30 @@
-#!/usr/bin/env python3
+import os
 
-from flask import Flask
+from flask import Flask, request, current_app, g
+from flask import make_response
+
 
 app = Flask(__name__)
 
+@app.before_request
+def app_path():
+    g.path = os.path.abspath(os.getcwd())
+
 @app.route('/')
 def index():
-    return "<h1>Python Operations with Flask Routing and Views.</h1>"
+    host = request.headers.get('Host') # request object  being passed from the application to the view function
+    appname = current_app.name  # app context: information about the app
+    response_body = f'''  
+            <h1>The host for this page is {host}
+            <h2>The name of this application is {appname}<h1>
+            <3>The path of this application on the user's device is {g.path}<h3>
+        '''
+    status_code = 200
+    headers = {}
 
-@app.route('/print_string/<string:parameter>')
-def print_string(parameter):
-    print(parameter)
-    return f'<h1>{parameter}<h2>'
+    return make_response(response_body, status_code, headers)
 
-@app.route('/count/<int:num>')
-def count(num):
-    return 'br'.join(str(i) for i in range(1, num+1))
-    
 
-@app.route('/math/<int:num1><operation><int:num2>')
-def math(num1, operation, num2):
-    if operation == '+':
-        return  num1 + num2
-    elif operation == '-':
-        return  num1 - num2
-    elif operation == '*':
-        return  num1 * num2
-    elif operation == 'div':
-        return num1 / num2
-    elif operation == '%':
-        return num1 % num2
-
-    else:
-        return "Invalid operation!"
-  
-    
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
